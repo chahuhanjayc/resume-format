@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Resume Format</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <main class="page">
+      <header class="hero">
+        <div class="badge">name: resume-format</div>
+        <h1>Resume Formatter</h1>
+        <p class="subtitle">
+          Upload resume content, keep it unchanged, and export a Word-ready .docx
+          with the exact formatting rules you provided.
+        </p>
+      </header>
+
+      <section class="card">
+        <div class="uploader">
+          <label class="file-btn">
+            <input id="fileInput" type="file" accept=".txt,.docx" />
+            <span>Upload Resume</span>
+          </label>
+          <div class="file-meta" id="fileMeta">No file selected</div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label class="label" for="resumeText">Resume Content</label>
+            <textarea
+              id="resumeText"
+              placeholder="Paste or upload resume text here..."
+            ></textarea>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Formatting Controls</div>
+
+            <label class="label" for="nameLine">
+              Candidate Name Line
+            </label>
+            <input id="nameLine" type="number" min="1" value="1" />
+            <p class="hint">Line number of the candidate name (first non-empty line is line 1).</p>
+
+            <div class="divider"></div>
+
+            <div class="label">Section Heading Detection</div>
+            <label class="check">
+              <input id="headingKnown" type="checkbox" checked />
+              <span>Match common headings</span>
+            </label>
+            <label class="check">
+              <input id="headingAllCaps" type="checkbox" />
+              <span>Match ALL CAPS lines</span>
+            </label>
+            <label class="check">
+              <input id="headingShort" type="checkbox" checked />
+              <span>Match short standalone lines</span>
+            </label>
+            <label class="label" for="headingCustom">
+              Custom Headings (| separated)
+            </label>
+            <input
+              id="headingCustom"
+              type="text"
+              placeholder="Professional Summary|Technical Skills"
+            />
+
+            <div class="divider"></div>
+
+            <div class="label">Bullets</div>
+            <label class="check">
+              <input id="stripBulletMarkers" type="checkbox" checked />
+              <span>Convert leading -, *, • into Word bullets</span>
+            </label>
+            <p class="hint">
+              If unchecked, the marker stays in the text and no bullet styling is applied.
+            </p>
+
+            <div class="divider"></div>
+
+            <div class="label">Professional Experience</div>
+            <label class="check">
+              <input id="alignDates" type="checkbox" />
+              <span>Right-align date range on company line</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="generateBtn" class="primary">Generate .docx</button>
+          <button id="clearBtn" class="ghost">Clear</button>
+          <div id="status" class="status"></div>
+        </div>
+      </section>
+
+      <section class="card info">
+        <div class="panel-title">Rules Applied</div>
+        <ul class="list">
+          <li>Calibri 10.5pt body, 12pt bold headings, 14pt bold centered name</li>
+          <li>A4 portrait, 1-inch margins, single line spacing</li>
+          <li>Paragraph spacing after: 6pt</li>
+          <li>Bullet indent 0.25", text indent 0.5"</li>
+          <li>No content changes or reordering</li>
+        </ul>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.1/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
