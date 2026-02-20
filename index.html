@@ -88,6 +88,19 @@
 
             <div class="divider"></div>
 
+            <div class="label">Local AI (Ollama)</div>
+            <label class="check">
+              <input id="useAi" type="checkbox" />
+              <span>Use local AI to pre-format</span>
+            </label>
+            <label class="label" for="aiModel">Model</label>
+            <input id="aiModel" type="text" value="llama3.1:8b" />
+            <p class="hint">
+              Requires Ollama running on this machine. Use local hosting (not GitHub Pages).
+            </p>
+
+            <div class="divider"></div>
+
             <div class="label">Professional Experience</div>
             <label class="check">
               <input id="alignDates" type="checkbox" />

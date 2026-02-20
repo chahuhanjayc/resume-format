@@ -8,6 +8,8 @@ const headingShort = document.getElementById("headingShort");
 const headingCustom = document.getElementById("headingCustom");
 const stripBulletMarkers = document.getElementById("stripBulletMarkers");
 const alignDates = document.getElementById("alignDates");
+const useAi = document.getElementById("useAi");
+const aiModel = document.getElementById("aiModel");
 const generateBtn = document.getElementById("generateBtn");
 const clearBtn = document.getElementById("clearBtn");
 const status = document.getElementById("status");
@@ -64,10 +66,20 @@ clearBtn.addEventListener("click", () => {
 });
 
 generateBtn.addEventListener("click", async () => {
-  const text = resumeText.value;
+  let text = resumeText.value;
   if (!text.trim()) {
     status.textContent = "Add resume content first.";
     return;
+  }
+
+  if (useAi.checked) {
+    status.textContent = "Running local AI (Ollama)...";
+    try {
+      text = await formatWithAi(text);
+    } catch (err) {
+      status.textContent = "AI formatting failed. Check Ollama is running.";
+      return;
+    }
   }
 
   const doc = buildDocument(text);
@@ -88,6 +100,126 @@ generateBtn.addEventListener("click", async () => {
     status.textContent = "Failed to generate .docx.";
   }
 });
+
+async function formatWithAi(content) {
+  const prompt = getFormattingPrompt();
+  const response = await fetch("http://localhost:11434/api/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: aiModel.value || "llama3.1:8b",
+      prompt: content,
+      system: prompt,
+      stream: false
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error("Ollama request failed");
+  }
+
+  const data = await response.json();
+  return (data.response || "").trim();
+}
+
+function getFormattingPrompt() {
+  return `
+You are a formatting engine. Your task is to reformat the provided resume content into a clean, professional, client-ready Word document.
+
+CRITICAL RULES (Must Follow Strictly)
+1. DO NOT change the content in any way
+- Do not remove text
+- Do not add text
+- Do not reword, summarize, or paraphrase
+- Do not correct grammar or spelling
+- Do not reorder bullets or sections
+- Do not infer or insert missing information
+2. Formatting ONLY
+- Your responsibility is limited to layout, spacing, alignment, fonts, and structure
+- The words must remain exactly as provided
+3. Output must be suitable for Microsoft Word
+- Assume standard Word rendering
+- No Markdown symbols in the final output
+- No emojis, icons, tables, or graphics
+- No columns
+
+Page Setup
+- Page size: A4
+- Orientation: Portrait
+- Margins: Top 1 inch, Bottom 1 inch, Left 1 inch, Right 1 inch
+- Line spacing: Single
+- Paragraph spacing: Before 0 pt, After 6 pt (unless specified otherwise)
+
+Font Standards (Apply Consistently)
+- Primary font: Calibri
+- Text color: Black
+- Body text size: 10.5 pt
+- Section headers: 12 pt, Bold
+- Candidate name: 14 pt, Bold
+
+Header (Candidate Name)
+- Candidate name appears at the very top
+- Alignment: Center
+- Font: Calibri, 14 pt, Bold
+- No underline
+- No extra text before or after the name
+- Add one blank line after the name
+
+Section Headings
+- Font: Calibri
+- Size: 12 pt
+- Bold
+- Left-aligned
+- Capitalization: Title Case (as provided — do not modify text)
+- Spacing: One blank line before the section header
+- No blank line between header and its content
+
+Body Text (Paragraphs)
+- Font: Calibri
+- Size: 10.5 pt
+- Left-aligned
+- Single-spaced
+- Paragraph spacing after: 6 pt
+- No indentation
+- Maintain original paragraph breaks exactly as provided
+
+Bullet Points
+- Bullet style: Standard round bullet (Word default)
+- Font: Calibri, 10.5 pt
+- Alignment: Left
+- Indentation: Bullet indent 0.25 inch, Text indent 0.5 inch
+- Spacing: No blank line between bullets, 6 pt after final bullet in a group
+- Preserve bullet text exactly as provided
+
+Job Experience Entries
+- Company line: Company Name, Location Start Date – End Date
+- Company name bold, dates regular
+- Dates right-aligned on same line
+- Role title on next line, bold
+- Preserve bullets/paragraphs as received
+
+Skills Sections
+- Keep category labels exactly as provided
+- Category labels bold, same line as content
+- Content regular, comma-separated lists unchanged
+- No tables or columns
+
+Certifications & Education
+- Each item on its own line
+- Maintain order
+- No bullets unless present in source
+- Preserve dates and separators exactly
+
+Final Output Requirements
+- Clean, consistent, recruiter-standard resume
+- No decorative elements or horizontal lines
+- No headers or footers
+- No page numbers
+- No commentary or analysis
+
+Return only the formatted resume content, ready to be pasted directly into Microsoft Word.
+`.trim();
+}
 
 function buildDocument(rawText) {
   const {
