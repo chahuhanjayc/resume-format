@@ -308,6 +308,10 @@ function isHeading(line, index, lines, customList) {
     }
   }
 
+  if (trimmed.endsWith(":") && trimmed.length <= 40) {
+    return true;
+  }
+
   if (headingShort.checked) {
     const prev = lines[index - 1] || "";
     const next = lines[index + 1] || "";
